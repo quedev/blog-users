@@ -10,14 +10,21 @@ from sqlalchemy import Integer, String, Text
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from forms import CreatePostForm, RegisterForm
+from forms import CreatePostForm, RegisterForm, LoginForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
-# TODO: Configure Flask-Login
+# Configure Flask-Login
+login_maange = LoginManager()
+login_maange.init_app(app)
+
+
+@login_maange.user_loader
+def load_user(user_id):
+    return db.get_or_404(User, user_id)
 
 
 # CREATE DATABASE
@@ -76,10 +83,22 @@ def register():
     return render_template("register.html", form=form)
 
 
-# TODO: Retrieve a user from the database based on their email. 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    form = LoginForm()
+    if form.validate_on_submit():
+        query = db.session.execute(db.select(User).where(User.email==form.email.data))
+        user = query.scalar()
+        if not user:
+            #flash message here
+            pass
+        elif not check_password_hash(user.password, form.password.data):
+            # flash message here
+            pass
+        else:
+            login_user(user)
+            return redirect(url_for("get_all_posts"))
+    return render_template("login.html", form=form)
 
 
 @app.route('/logout')
