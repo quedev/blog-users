@@ -48,6 +48,7 @@ class BlogPost(db.Model):
     date: Mapped[str] = mapped_column(String(250), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
+    comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="post")
 
 
 # Create a User table for all your registered users.
@@ -67,6 +68,8 @@ class Comment(db.Model):
     text: Mapped[str] = mapped_column(String(1000), nullable=False)
     author_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     comment_author: Mapped["User"] = relationship("User", back_populates="comments")
+    post_id: Mapped[str] = mapped_column(Integer, ForeignKey("blog_posts.id"))
+    post: Mapped["BlogPost"] = relationship("BlogPost", back_populates="comments")
 
 
 with app.app_context():
