@@ -54,17 +54,19 @@ class BlogPost(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    posts: Mapped[list["BlogPost"]] = relationship("BlogPost", back_populates="author")
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(100))
+    posts: Mapped[list["BlogPost"]] = relationship("BlogPost", back_populates="author")
+    comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="comment_author")
 
 
 class Comment(db.Model):
     __tablename__ = "comments"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     text: Mapped[str] = mapped_column(String(1000), nullable=False)
-
+    author_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    comment_author: Mapped["User"] = relationship("User", back_populates="comments")
 
 
 with app.app_context():
