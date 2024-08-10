@@ -49,7 +49,7 @@ class BlogPost(db.Model):
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
 
 
-# TODO: Create a User table for all your registered users.
+# Create a User table for all your registered users.
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -95,7 +95,7 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        query = db.session.execute(db.select(User).where(User.email==form.email.data))
+        query = db.session.execute(db.select(User).where(User.email == form.email.data))
         user = query.scalar()
         if not user:
             flash("Email does not exist, please try again.")
