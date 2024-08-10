@@ -60,6 +60,13 @@ class User(UserMixin, db.Model):
     name: Mapped[str] = mapped_column(String(100))
 
 
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+
+
+
 with app.app_context():
     db.create_all()
 
