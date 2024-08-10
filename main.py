@@ -134,10 +134,21 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts)
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
 def show_post(post_id):
     requested_post = db.get_or_404(BlogPost, post_id)
     comment_form = CommentForm()
+    if comment_form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash("You need to log in or register to comment.")
+            return redirect(url_for("login"))
+        new_comment = Comment(
+            text=comment_form.comment_text.data,
+            comment_form=current_user,
+            post=requested_post
+        )
+        db.session.add(new_comment)
+        db.sesseion.commit()
     return render_template("post.html", post=requested_post, form=comment_form)
 
 
