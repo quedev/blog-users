@@ -69,9 +69,11 @@ def register():
         if form.validate_on_submit():
             email = form.email.data
             query_user = db.session.execute(db.select(User).where(User.email == email)).scalar()
+            # redirect to login when email entered alreaady exists
             if query_user:
                 flash("Email already exists. Log in instead")
                 return redirect(url_for("login"))
+
             hashed_pswd = generate_password_hash(
                 form.password.data,
                 method='pbkdf2:sha256',
@@ -96,11 +98,9 @@ def login():
         query = db.session.execute(db.select(User).where(User.email==form.email.data))
         user = query.scalar()
         if not user:
-            #flash message here
-            pass
+            flash("Email does not exist, please try again.")
         elif not check_password_hash(user.password, form.password.data):
-            # flash message here
-            pass
+            flash("Password incorrect, please try again.")
         else:
             login_user(user)
             return redirect(url_for("get_all_posts"))
