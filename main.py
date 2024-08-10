@@ -67,6 +67,11 @@ def register():
     form = RegisterForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            email = form.email.data
+            query_user = db.session.execute(db.select(User).where(User.email == email)).scalar()
+            if query_user:
+                flash("Email already exists. Log in instead")
+                return redirect(url_for("login"))
             hashed_pswd = generate_password_hash(
                 form.password.data,
                 method='pbkdf2:sha256',
@@ -74,7 +79,7 @@ def register():
             )
             new_user = User(
                 name=form.name.data,
-                email=form.email.data,
+                email=email,
                 password=hashed_pswd
             )
             db.session.add(new_user)
